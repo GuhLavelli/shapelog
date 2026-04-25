@@ -11,20 +11,25 @@
 /.env*
 
 # Ignore all logfiles and tempfiles.
-/log/*
-/tmp/*
-!/log/.keep
-!/tmp/.keep
+/apps/web/log/*
+/apps/web/tmp/*
+!/apps/web/log/.keep
+!/apps/web/tmp/.keep
+log/
+tmp/
+**/log/
+**/tmp/
+
 
 # Ignore pidfiles, but keep the directory.
-/tmp/pids/*
-!/tmp/pids/
-!/tmp/pids/.keep
+/apps/web/tmp/pids/*
+!/apps/web/tmp/pids/
+!/apps/web/tmp/pids/.keep
 
-/public/assets
+/apps/web/public/assets
 
 # Ignore key files for decrypting credentials and more.
-/config/*.key
+/apps/web/config/*.key
 
 # Ignore local Claude Code settings (machine-specific paths and permissions)
 /.claude/
@@ -32,8 +37,8 @@
 /.nvimlog
 
 # JavaScript dependencies are installed locally but should not be versioned.
-/node_modules/
+node_modules/
+**/node_modules/
 
-
-/app/assets/builds/*
-!/app/assets/builds/.keep
+/apps/web/app/assets/builds/*
+!/apps/web/app/assets/builds/.keep
