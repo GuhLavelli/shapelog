@@ -1,0 +1,6 @@
+<% active = current_page?(path) %>
+<%= link_to path,
+    class: "flex flex-col items-center justify-center gap-1 text-xs font-medium transition-colors #{active ? 'text-[#10b981]' : 'text-slate-500 dark:text-slate-400'}" do %>
+  <span class="text-xl leading-none"><%= icon %></span>
+  <span><%= label %></span>
+<% end %>

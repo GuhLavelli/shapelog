@@ -1,0 +1,52 @@
+name: shapelog
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: shapelog
+      POSTGRES_PASSWORD: shapelog_dev
+      POSTGRES_DB: shapelog_development
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shapelog -d shapelog_development"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app_network
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - bundle_cache:/usr/local/bundle
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://shapelog:shapelog_dev@db/shapelog_development
+      RAILS_ENV: development
+      RAILS_LOG_TO_STDOUT: "true"
+      SEED_PASSWORD: changeme123
+    networks:
+      - app_network
+    # bin/dev roda rails server + tailwind watch via foreman (Procfile.dev)
+    command: bin/dev
+    stdin_open: true
+    tty: true
+
+volumes:
+  postgres_data:
+  bundle_cache:
+
+networks:
+  app_network:
+    driver: bridge

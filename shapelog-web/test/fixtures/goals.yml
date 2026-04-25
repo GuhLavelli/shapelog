@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  starting_weight: 9.99
+  target_weight: 9.99
+  start_date: 2026-04-15
+  weekly_target: 9.99
+
+two:
+  user: two
+  starting_weight: 9.99
+  target_weight: 9.99
+  start_date: 2026-04-15
+  weekly_target: 9.99

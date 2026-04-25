@@ -1,0 +1,13 @@
+<div class="text-center py-16">
+  <div class="text-5xl mb-4"><%= local_assigns[:icon] || "📭" %></div>
+  <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100"><%= title %></h3>
+  <% if local_assigns[:description].present? %>
+    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400"><%= description %></p>
+  <% end %>
+  <% if local_assigns[:cta_label].present? && local_assigns[:cta_path].present? %>
+    <div class="mt-6">
+      <%= link_to cta_label, cta_path,
+          class: "inline-flex items-center rounded-lg bg-[#10b981] hover:bg-[#059669] px-4 py-2 text-sm font-medium text-white transition-colors" %>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,6 @@
+<% active = current_page?(path) %>
+<%= link_to path,
+    class: "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors #{active ? 'bg-[#d1fae5] text-[#059669] dark:bg-emerald-900/30 dark:text-emerald-400' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}" do %>
+  <span class="text-base"><%= icon %></span>
+  <%= label %>
+<% end %>
