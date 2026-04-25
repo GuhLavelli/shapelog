@@ -1,4 +1,4 @@
-<%= turbo_frame_tag "today_checkin" do %>
+<%= turbo_frame_tag "today_checkin", class: "block" do %>
   <% if today_checkin.present? %>
     <%= render "shared/card", class: "border-emerald-100 bg-emerald-50/40 dark:border-emerald-900 dark:bg-emerald-950/10" do %>
       <div class="flex items-start justify-between gap-4">
