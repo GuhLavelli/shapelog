@@ -1,10 +1,10 @@
 <% has_error = local_assigns[:object]&.errors&.key?(local_assigns[:attr]) %>
 <div class="<%= local_assigns[:class] %>">
   <% if local_assigns[:label_text].present? %>
-    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+    <label <% if local_assigns[:field_id].present? %>for="<%= field_id %>"<% end %> class="mb-2 block text-sm font-medium text-slate-900 dark:text-slate-100">
       <%= label_text %>
       <% if local_assigns[:required] %>
-        <span class="text-rose-500 ml-0.5">*</span>
+        <span class="ml-0.5 text-rose-500">*</span>
       <% end %>
     </label>
   <% end %>
@@ -12,12 +12,12 @@
   <%= yield %>
 
   <% if local_assigns[:hint].present? && !has_error %>
-    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400"><%= hint %></p>
+    <p class="mt-2 text-sm text-slate-500 dark:text-slate-400"><%= hint %></p>
   <% end %>
 
   <% if has_error %>
     <% object.errors.full_messages_for(attr).each do |msg| %>
-      <p class="mt-1 text-xs text-rose-600 dark:text-rose-400"><%= msg %></p>
+      <p class="mt-2 text-sm text-rose-600 dark:text-rose-400"><%= msg %></p>
     <% end %>
   <% end %>
 </div>

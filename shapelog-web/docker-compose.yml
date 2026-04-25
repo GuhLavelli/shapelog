@@ -32,7 +32,11 @@ services:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://shapelog:shapelog_dev@db/shapelog_development
+      POSTGRES_HOST: db
+      POSTGRES_USER: shapelog
+      POSTGRES_PASSWORD: shapelog_dev
+      POSTGRES_DB: shapelog_development
+      POSTGRES_TEST_DB: shapelog_test
       RAILS_ENV: development
       RAILS_LOG_TO_STDOUT: "true"
       SEED_PASSWORD: changeme123

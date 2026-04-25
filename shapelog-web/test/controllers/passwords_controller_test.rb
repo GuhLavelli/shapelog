@@ -6,6 +6,8 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
   test "new" do
     get new_password_path
     assert_response :success
+    assert_match "Recuperar senha", response.body
+    assert_match "Voltar para o login", response.body
   end
 
   test "create" do
@@ -29,6 +31,8 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
   test "edit" do
     get edit_password_path(@user.password_reset_token)
     assert_response :success
+    assert_match "Definir nova senha", response.body
+    assert_match "Salvar nova senha", response.body
   end
 
   test "edit with invalid password reset token" do

@@ -25,10 +25,14 @@
 
 # Ignore key files for decrypting credentials and more.
 /config/*.key
-/docs/plans
 
 # Ignore local Claude Code settings (machine-specific paths and permissions)
 /.claude/
+/.codex
+/.nvimlog
+
+# JavaScript dependencies are installed locally but should not be versioned.
+/node_modules/
 
 
 /app/assets/builds/*

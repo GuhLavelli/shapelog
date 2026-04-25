@@ -1,6 +1,12 @@
 <% flash.each do |type, message| %>
-  <% classes = type.to_s == "alert" ? "bg-rose-50 border-rose-200 text-rose-800 dark:bg-rose-900/20 dark:border-rose-800 dark:text-rose-300" : "bg-[#e0e7ff] border-[#6366f1]/30 text-[#4f46e5] dark:bg-indigo-900/20 dark:border-indigo-800 dark:text-indigo-300" %>
-  <div class="mb-4 rounded-lg border px-4 py-3 text-sm <%= classes %>">
-    <%= message %>
+  <% next if message.blank? %>
+  <% alert = type.to_s == "alert" %>
+  <% classes = alert ? "border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-800 dark:bg-rose-900/20 dark:text-rose-300" : "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300" %>
+  <% icon = alert ? "Aviso" : "Sucesso" %>
+  <div class="mb-4 flex items-start gap-3 rounded-xl border px-4 py-3 text-sm shadow-xs <%= classes %>" role="alert">
+    <span class="inline-flex rounded-full bg-white/70 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide dark:bg-slate-900/40"><%= icon %></span>
+    <div class="min-w-0 flex-1">
+      <p class="font-medium"><%= message %></p>
+    </div>
   </div>
 <% end %>

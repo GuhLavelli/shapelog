@@ -6,6 +6,8 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   test "new" do
     get new_session_path
     assert_response :success
+    assert_match "Entrar", response.body
+    assert_match "Esqueci minha senha", response.body
   end
 
   test "create with valid credentials" do

@@ -14,7 +14,7 @@ module Authentication
 
   private
     def authenticated?
-      resume_session
+      resume_session.present?
     end
 
     def require_authentication
@@ -22,11 +22,17 @@ module Authentication
     end
 
     def resume_session
-      Current.session ||= find_session_by_cookie
+      Current.session ||= find_authenticated_session_by_cookie
     end
 
-    def find_session_by_cookie
-      Session.find_by(id: cookies.signed[:session_id]) if cookies.signed[:session_id]
+    def find_authenticated_session_by_cookie
+      return unless cookies.signed[:session_id]
+
+      session = Session.includes(:user).find_by(id: cookies.signed[:session_id])
+      return session if session&.user.present?
+
+      cookies.delete(:session_id)
+      nil
     end
 
     def request_authentication
@@ -41,7 +47,7 @@ module Authentication
     def start_new_session_for(user)
       user.sessions.create!(user_agent: request.user_agent, ip_address: request.remote_ip).tap do |session|
         Current.session = session
-        cookies.signed.permanent[:session_id] = { value: session.id, httponly: true, same_site: :lax }
+        cookies.signed.permanent[:session_id] = { value: session.id, httponly: true, same_site: :lax, secure: Rails.env.production? }
       end
     end
 

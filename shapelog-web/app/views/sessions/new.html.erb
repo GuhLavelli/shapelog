@@ -1,31 +1,45 @@
-<div class="mx-auto md:w-2/3 w-full">
-  <% if alert = flash[:alert] %>
-    <p class="py-2 px-3 bg-red-50 mb-5 text-red-500 font-medium rounded-lg inline-block" id="alert"><%= alert %></p>
+<%= render "shared/page_header",
+    title: "Entrar",
+    subtitle: "Use seu e-mail e senha para acessar o painel." %>
+
+<%= form_with url: session_url, class: "space-y-5" do |form| %>
+  <% email_field_id = form.field_id(:email_address) %>
+  <% password_field_id = form.field_id(:password) %>
+
+  <%= render "shared/field",
+      field_id: email_field_id,
+      label_text: "E-mail",
+      required: true,
+      hint: "Digite o e-mail cadastrado para sua conta privada." do %>
+    <%= form.email_field :email_address,
+        id: email_field_id,
+        required: true,
+        autofocus: true,
+        autocomplete: "username",
+        placeholder: "voce@exemplo.com",
+        value: params[:email_address],
+        class: "block w-full rounded-xl border border-slate-300 bg-slate-50 p-3 text-sm text-slate-900 shadow-xs focus:border-emerald-500 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder-slate-500" %>
   <% end %>
 
-  <% if notice = flash[:notice] %>
-    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
+  <%= render "shared/field",
+      field_id: password_field_id,
+      label_text: "Senha",
+      required: true do %>
+    <%= form.password_field :password,
+        id: password_field_id,
+        required: true,
+        autocomplete: "current-password",
+        placeholder: "Sua senha",
+        maxlength: 72,
+        class: "block w-full rounded-xl border border-slate-300 bg-slate-50 p-3 text-sm text-slate-900 shadow-xs focus:border-emerald-500 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder-slate-500" %>
   <% end %>
 
-  <h1 class="font-bold text-4xl">Sign in</h1>
+  <div class="flex flex-col gap-3 border-t border-slate-200 pt-5 dark:border-slate-800">
+    <%= form.submit "Entrar",
+        class: "inline-flex w-full items-center justify-center rounded-lg border border-emerald-600 bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:border-emerald-700 hover:bg-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-300 dark:border-emerald-500 dark:bg-emerald-500 dark:hover:border-emerald-600 dark:hover:bg-emerald-600 dark:focus:ring-emerald-800" %>
 
-  <%= form_with url: session_url, class: "contents" do |form| %>
-    <div class="my-5">
-      <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address], class: "block shadow-sm rounded-md border border-gray-400 focus:outline-blue-600 px-3 py-2 mt-2 w-full" %>
-    </div>
-
-    <div class="my-5">
-      <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72, class: "block shadow-sm rounded-md border border-gray-400 focus:outline-blue-600 px-3 py-2 mt-2 w-full" %>
-    </div>
-
-    <div class="col-span-6 sm:flex sm:items-center sm:gap-4">
-      <div class="inline">
-        <%= form.submit "Sign in", class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
-      </div>
-
-      <div class="mt-4 text-sm text-gray-500 sm:mt-0">
-        <%= link_to "Forgot password?", new_password_path, class: "text-gray-700 underline hover:no-underline" %>
-      </div>
-    </div>
-  <% end %>
-</div>
+    <%= link_to "Esqueci minha senha",
+        new_password_path,
+        class: "inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-4 focus:ring-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700 dark:focus:ring-slate-700" %>
+  </div>
+<% end %>

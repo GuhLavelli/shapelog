@@ -1,10 +1,5 @@
 <% variant ||= "primary" %>
-<% base = "inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2" %>
-<% variants = {
-  "primary"   => "bg-[#10b981] hover:bg-[#059669] text-white focus:ring-[#10b981]",
-  "secondary" => "bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 focus:ring-slate-500",
-  "ghost"     => "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 focus:ring-slate-500"
-} %>
-<%= tag.button type: (local_assigns[:type] || "button"), class: "#{base} #{variants[variant]} #{local_assigns[:class]}", **local_assigns.except(:variant, :type, :class) do %>
+<% size ||= "md" %>
+<%= tag.button type: (local_assigns[:type] || "button"), class: button_classes(variant:, size:, extra: local_assigns[:class]), **local_assigns.except(:variant, :size, :type, :class) do %>
   <%= content %>
 <% end %>
