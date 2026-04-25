@@ -1,5 +1,149 @@
-<%= render "shared/page_header", title: "Dashboard", subtitle: "Resumo da sua jornada" %>
+<%= render "shared/page_header",
+    title: "Dashboard",
+    subtitle: "Resumo da sua jornada",
+    action: link_to((@today_checkin.present? ? "Ver check-ins" : "Registrar hoje"), @today_checkin.present? ? daily_checkins_path : new_daily_checkin_path(date: Date.current), class: button_classes(variant: :primary)) %>
 
-<div class="text-center py-16 text-slate-400 dark:text-slate-600">
-  <p class="text-lg">Em breve — dados do check-in aparecerão aqui.</p>
+<div class="space-y-6">
+  <% if @recent_checkin.present? %>
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <%= render "shared/stat_tile",
+          label: "Peso mais recente",
+          value: "#{number_with_precision(@recent_checkin.weight, precision: 1, strip_insignificant_zeros: true)} kg" %>
+      <%= render "shared/stat_tile",
+          label: "Média dos últimos 7",
+          value: @current_weight_average.present? ? "#{number_with_precision(@current_weight_average, precision: 1, strip_insignificant_zeros: true)} kg" : "—" %>
+      <%= render "shared/stat_tile",
+          label: "Streak de treino",
+          value: "#{@training_streak} dia#{'s' unless @training_streak == 1}" %>
+      <%= render "shared/stat_tile",
+          label: "Semanas acompanhadas",
+          value: @weeks_tracked %>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+      <%= render "shared/card" do %>
+        <div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p class="text-sm font-medium text-emerald-700 dark:text-emerald-400"><%= @today_checkin.present? ? "Hoje já foi registrado" : "Hoje está em aberto" %></p>
+            <h2 class="mt-2 text-xl font-semibold text-slate-900 dark:text-slate-100">
+              <%= @today_checkin.present? ? l(@today_checkin.date, format: :long) : "Check-in de #{l(Date.current, format: :long)}" %>
+            </h2>
+            <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
+              <%= @today_checkin.present? ? "Edite o registro do dia se precisar corrigir peso, treino ou percepção corporal." : "Registrar peso, treino, cardio e percepção do dia mantém o histórico confiável." %>
+            </p>
+          </div>
+
+          <%= link_to(@today_checkin.present? ? "Editar hoje" : "Registrar agora",
+              @today_checkin.present? ? edit_daily_checkin_path(@today_checkin) : new_daily_checkin_path(date: Date.current),
+              class: button_classes(variant: @today_checkin.present? ? :secondary : :primary),
+              data: (@today_checkin.present? ? { turbo_frame: "today_checkin" } : {})) %>
+        </div>
+
+        <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/60">
+            <div class="flex items-center justify-between">
+              <p class="text-sm font-medium text-slate-900 dark:text-slate-100">Treino nesta semana</p>
+              <span class="text-sm font-semibold text-emerald-600 dark:text-emerald-400"><%= @weekly_training_count %>/7</span>
+            </div>
+            <div class="mt-3 h-2 rounded-full bg-slate-200 dark:bg-slate-800">
+              <div class="h-2 rounded-full bg-emerald-500 transition-all" style="width: <%= percentage_width(@weekly_training_count, max: 7) %>%"></div>
+            </div>
+          </div>
+
+          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/60">
+            <div class="flex items-center justify-between">
+              <p class="text-sm font-medium text-slate-900 dark:text-slate-100">Cardio nesta semana</p>
+              <span class="text-sm font-semibold text-emerald-600 dark:text-emerald-400"><%= @weekly_cardio_count %>/7</span>
+            </div>
+            <div class="mt-3 h-2 rounded-full bg-slate-200 dark:bg-slate-800">
+              <div class="h-2 rounded-full bg-emerald-500 transition-all" style="width: <%= percentage_width(@weekly_cardio_count, max: 7) %>%"></div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <%= render "shared/card" do %>
+        <% if @goal.present? %>
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Meta ativa</p>
+              <h2 class="mt-2 text-xl font-semibold text-slate-900 dark:text-slate-100">
+                <%= number_with_precision(@goal.starting_weight, precision: 1, strip_insignificant_zeros: true) %> kg
+                <span class="text-slate-400">→</span>
+                <%= number_with_precision(@goal.target_weight, precision: 1, strip_insignificant_zeros: true) %> kg
+              </h2>
+              <p class="mt-2 text-sm text-slate-500 dark:text-slate-400"><%= goal_direction_label(@goal) %></p>
+            </div>
+
+            <%= link_to "Abrir meta", goal_path, class: button_classes(variant: :secondary, size: :sm) %>
+          </div>
+
+          <div class="mt-5 h-3 rounded-full bg-slate-200 dark:bg-slate-800">
+            <div class="h-3 rounded-full bg-emerald-500 transition-all" style="width: <%= percentage_width(@goal_progress_percent) %>%"></div>
+          </div>
+          <p class="mt-3 text-sm font-medium text-slate-700 dark:text-slate-300">
+            <% if @goal_progress_percent.present? %>
+              <%= number_with_precision(@goal_progress_percent, precision: 1, strip_insignificant_zeros: true) %>% do caminho
+            <% else %>
+              Sem dados suficientes para calcular o progresso
+            <% end %>
+          </p>
+        <% else %>
+          <%= render "shared/empty_state",
+              icon: "🎯",
+              title: "Você ainda não definiu uma meta",
+              description: "Cadastre peso inicial, peso alvo e ritmo semanal para acompanhar o progresso.",
+              cta_label: "Definir meta",
+              cta_path: edit_goal_path %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <%= render "shared/card" do %>
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Último check-in</p>
+          <h2 class="mt-2 text-xl font-semibold text-slate-900 dark:text-slate-100"><%= l(@recent_checkin.date, format: :long) %></h2>
+          <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            Peso registrado: <span class="font-medium text-slate-900 dark:text-slate-100"><%= number_with_precision(@recent_checkin.weight, precision: 1, strip_insignificant_zeros: true) %> kg</span>
+          </p>
+
+          <div class="mt-4 flex flex-wrap gap-2">
+            <span class="<%= status_badge_classes(active: @recent_checkin.trained?) %>">Treino</span>
+            <span class="<%= status_badge_classes(active: @recent_checkin.cardio?) %>">Cardio</span>
+            <span class="<%= status_badge_classes(active: @recent_checkin.anxiolytic_used?, tone: :warning) %>">Ansiolítico</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3 lg:min-w-[20rem]">
+          <% [
+            ["Fome", @recent_checkin.hunger_level],
+            ["Energia", @recent_checkin.energy_level],
+            ["Humor/Stress", @recent_checkin.mood_stress_level]
+          ].each do |label, value| %>
+            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/60">
+              <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                <span><%= label %></span>
+                <span><%= value || "—" %></span>
+              </div>
+              <div class="mt-2 h-2 rounded-full bg-slate-200 dark:bg-slate-800">
+                <div class="h-2 rounded-full bg-emerald-500 transition-all" style="width: <%= percentage_width(value, max: 10) %>%"></div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <% if @recent_checkin.notes.present? %>
+        <p class="mt-4 text-sm text-slate-500 dark:text-slate-400"><%= truncate(@recent_checkin.notes, length: 180) %></p>
+      <% end %>
+    <% end %>
+  <% else %>
+    <%= render "shared/empty_state",
+        icon: "📊",
+        title: "Ainda não há dados no dashboard",
+        description: "Seu primeiro check-in já desbloqueia o resumo de peso, consistência e progresso da meta.",
+        cta_label: "Registrar primeiro check-in",
+        cta_path: new_daily_checkin_path(date: Date.current) %>
+  <% end %>
 </div>

@@ -1,0 +1,110 @@
+<%= render "shared/page_header",
+    title: @goal.persisted? ? "Editar meta" : "Definir meta",
+    subtitle: "Configure a direção da sua jornada e o ritmo desejado" %>
+
+<%= render "shared/card" do %>
+  <%= form_with model: @goal, url: goal_path, method: :patch, class: "space-y-8" do |form| %>
+    <%= render "shared/form_errors", record: @goal %>
+
+    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+      <%= render "shared/field",
+          object: @goal,
+          attr: :starting_weight,
+          label_text: "Peso inicial",
+          field_id: form.field_id(:starting_weight),
+          required: true,
+          hint: "Aceita vírgula ou ponto como separador decimal." do %>
+        <div class="relative">
+          <%= form.text_field :starting_weight,
+              id: form.field_id(:starting_weight),
+              value: @goal.starting_weight_before_type_cast.presence || @goal.starting_weight,
+              inputmode: "decimal",
+              autocomplete: "off",
+              pattern: "[0-9]+([,\\.][0-9]+)?",
+              data: { controller: "decimal-input", action: "input->decimal-input#sanitize blur->decimal-input#sanitize" },
+              placeholder: "Ex.: 88,5",
+              class: text_input_classes(extra: "pe-14") %>
+          <span class="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-4 text-sm font-medium text-slate-500 dark:text-slate-400">kg</span>
+        </div>
+      <% end %>
+
+      <%= render "shared/field",
+          object: @goal,
+          attr: :target_weight,
+          label_text: "Peso alvo",
+          field_id: form.field_id(:target_weight),
+          required: true,
+          hint: "Use um valor diferente do peso inicial." do %>
+        <div class="relative">
+          <%= form.text_field :target_weight,
+              id: form.field_id(:target_weight),
+              value: @goal.target_weight_before_type_cast.presence || @goal.target_weight,
+              inputmode: "decimal",
+              autocomplete: "off",
+              pattern: "[0-9]+([,\\.][0-9]+)?",
+              data: { controller: "decimal-input", action: "input->decimal-input#sanitize blur->decimal-input#sanitize" },
+              placeholder: "Ex.: 82,0",
+              class: text_input_classes(extra: "pe-14") %>
+          <span class="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-4 text-sm font-medium text-slate-500 dark:text-slate-400">kg</span>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+      <%= render "shared/field",
+          object: @goal,
+          attr: :start_date,
+          label_text: "Data inicial",
+          field_id: form.field_id(:start_date),
+          required: true,
+          hint: "Selecione a data pelo calendário ou digite no formato dd/mm/aaaa." do %>
+        <div class="relative">
+          <div class="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3">
+            <svg class="h-4 w-4 text-slate-500 dark:text-slate-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 2v2m8-2v2M5 7h10M3 8.5A1.5 1.5 0 0 1 4.5 7h11A1.5 1.5 0 0 1 17 8.5v7A1.5 1.5 0 0 1 15.5 17h-11A1.5 1.5 0 0 1 3 15.5v-7Z"/>
+            </svg>
+          </div>
+          <%= form.text_field :start_date,
+              id: form.field_id(:start_date),
+              value: @goal.start_date_before_type_cast.presence || (@goal.start_date.present? ? l(@goal.start_date) : nil),
+              inputmode: "numeric",
+              placeholder: "dd/mm/aaaa",
+              autocomplete: "off",
+              datepicker: true,
+              "datepicker-format": "dd/mm/yyyy",
+              "datepicker-autohide": true,
+              "datepicker-buttons": true,
+              class: text_input_classes(extra: "ps-10") %>
+        </div>
+      <% end %>
+
+      <%= render "shared/field",
+          object: @goal,
+          attr: :weekly_target,
+          label_text: "Meta semanal",
+          field_id: form.field_id(:weekly_target),
+          hint: "Opcional. Usada para estimar o tempo restante até o objetivo." do %>
+        <div class="relative">
+          <%= form.text_field :weekly_target,
+              id: form.field_id(:weekly_target),
+              value: @goal.weekly_target_before_type_cast.presence || @goal.weekly_target,
+              inputmode: "decimal",
+              autocomplete: "off",
+              pattern: "[0-9]+([,\\.][0-9]+)?",
+              data: { controller: "decimal-input", action: "input->decimal-input#sanitize blur->decimal-input#sanitize" },
+              placeholder: "Ex.: 0,5",
+              class: text_input_classes(extra: "pe-28") %>
+          <span class="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-4 text-sm font-medium text-slate-500 dark:text-slate-400">kg/semana</span>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="flex flex-col gap-3 border-t border-slate-200 pt-2 sm:flex-row dark:border-slate-800">
+      <%= form.submit "Salvar meta",
+          class: button_classes(variant: :primary) %>
+      <%= link_to "Cancelar",
+          goal_path,
+          class: button_classes(variant: :secondary) %>
+    </div>
+  <% end %>
+<% end %>

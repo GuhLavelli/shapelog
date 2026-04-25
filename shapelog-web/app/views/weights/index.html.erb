@@ -1,5 +1,87 @@
-<%= render "shared/page_header", title: "Evolução de Peso" %>
+<%= render "shared/page_header",
+    title: "Evolução de Peso",
+    subtitle: "Histórico recente, média móvel e variação acumulada.",
+    action: link_to("Novo check-in", new_daily_checkin_path(date: Date.current), class: button_classes(variant: :primary)) %>
 
-<div class="text-center py-16 text-slate-400 dark:text-slate-600">
-  <p class="text-lg">Histórico e gráfico — em breve.</p>
+<div class="space-y-6">
+  <% if @checkins.any? %>
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <%= render "shared/stat_tile",
+          label: "Peso mais recente",
+          value: "#{number_with_precision(@latest_checkin.weight, precision: 1, strip_insignificant_zeros: true)} kg" %>
+      <%= render "shared/stat_tile",
+          label: "Média dos últimos 7",
+          value: @current_weight_average.present? ? "#{number_with_precision(@current_weight_average, precision: 1, strip_insignificant_zeros: true)} kg" : "—" %>
+      <%= render "shared/stat_tile",
+          label: "Variação total",
+          value: signed_weight_change(@weight_change),
+          delta: signed_weight_change(@weight_change),
+          hint: "desde o primeiro registro" %>
+      <%= render "shared/stat_tile",
+          label: "Dias acompanhados",
+          value: @days_tracked.present? ? @days_tracked + 1 : 1 %>
+    </div>
+
+    <% if @goal.present? %>
+      <%= render "shared/card" do %>
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Referência da meta</p>
+            <h2 class="mt-2 text-xl font-semibold text-slate-900 dark:text-slate-100">
+              Atual: <%= number_with_precision(@latest_checkin.weight, precision: 1, strip_insignificant_zeros: true) %> kg
+              <span class="text-slate-400">·</span>
+              Alvo: <%= number_with_precision(@goal.target_weight, precision: 1, strip_insignificant_zeros: true) %> kg
+            </h2>
+            <p class="mt-2 text-sm text-slate-500 dark:text-slate-400"><%= goal_direction_label(@goal) %></p>
+          </div>
+
+          <%= link_to "Abrir meta", goal_path, class: button_classes(variant: :secondary) %>
+        </div>
+      <% end %>
+    <% end %>
+
+    <%= render "shared/card" do %>
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Histórico recente</p>
+          <h2 class="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-100">Últimos registros de peso</h2>
+        </div>
+        <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400"><%= @checkins.count %> registro<%= "s" unless @checkins.count == 1 %></span>
+      </div>
+
+      <div class="mt-6 space-y-3">
+        <% previous_weight = nil %>
+        <% @checkins.each do |checkin| %>
+          <% delta = previous_weight.present? ? (checkin.weight - previous_weight).round(1) : nil %>
+          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/60">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p class="text-sm font-medium text-slate-900 dark:text-slate-100"><%= l(checkin.date, format: :long) %></p>
+                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  Check-in do dia <%= checkin.trained? ? "com treino" : "sem treino" %>
+                </p>
+              </div>
+
+              <div class="flex items-center gap-3">
+                <% if delta.present? %>
+                  <span class="rounded-full px-3 py-1 text-xs font-medium <%= delta.positive? ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' %>">
+                    <%= signed_weight_change(delta) %>
+                  </span>
+                <% end %>
+                <span class="text-lg font-semibold text-slate-900 dark:text-slate-100"><%= number_with_precision(checkin.weight, precision: 1, strip_insignificant_zeros: true) %> kg</span>
+              </div>
+            </div>
+          </div>
+          <% previous_weight = checkin.weight %>
+        <% end %>
+      </div>
+    <% end %>
+  <% else %>
+    <%= render "shared/empty_state",
+        icon: "⚖️",
+        title: "Ainda não há histórico de peso",
+        description: "Registre o primeiro check-in para começar a acompanhar sua evolução.",
+        cta_label: "Registrar primeiro check-in",
+        cta_path: new_daily_checkin_path(date: Date.current) %>
+  <% end %>
 </div>
