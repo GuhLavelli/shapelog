@@ -1,0 +1,13 @@
+<% if turbo_frame_request? %>
+  <%= turbo_frame_tag "today_checkin" do %>
+    <%= render "shared/card", class: "border-emerald-200 dark:border-emerald-900" do %>
+      <%= render "shared/page_header", title: title, subtitle: subtitle %>
+      <%= render "form", checkin: checkin, existing_checkin: existing_checkin %>
+    <% end %>
+  <% end %>
+<% else %>
+  <%= render "shared/page_header", title: title, subtitle: subtitle %>
+  <%= render "shared/card" do %>
+    <%= render "form", checkin: checkin, existing_checkin: existing_checkin %>
+  <% end %>
+<% end %>

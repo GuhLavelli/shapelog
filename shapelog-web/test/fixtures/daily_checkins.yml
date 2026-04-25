@@ -3,25 +3,23 @@
 one:
   user: one
   date: 2026-04-15
-  weight: 9.99
+  weight: 97.5
   trained: false
   cardio: false
-  steps: 1
+  anxiolytic_used: false
   hunger_level: 1
   energy_level: 1
-  calories_estimate: 1
-  waist: 9.99
+  mood_stress_level: 1
   notes: MyText
 
 two:
   user: two
   date: 2026-04-15
-  weight: 9.99
+  weight: 80.0
   trained: false
   cardio: false
-  steps: 1
+  anxiolytic_used: false
   hunger_level: 1
   energy_level: 1
-  calories_estimate: 1
-  waist: 9.99
+  mood_stress_level: 1
   notes: MyText

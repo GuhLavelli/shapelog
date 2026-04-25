@@ -1,0 +1,40 @@
+<%= turbo_frame_tag "today_checkin" do %>
+  <% if today_checkin.present? %>
+    <%= render "shared/card", class: "border-emerald-100 bg-emerald-50/40 dark:border-emerald-900 dark:bg-emerald-950/10" do %>
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="text-sm font-medium text-emerald-700 dark:text-emerald-400">Hoje</p>
+          <h2 class="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100">
+            <%= l(today_checkin.date, format: :long) %>
+          </h2>
+          <div class="mt-3 flex flex-wrap gap-2 text-sm text-slate-600 dark:text-slate-300">
+            <span class="rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-700 dark:bg-slate-900 dark:text-slate-200"><%= today_checkin.weight %> kg</span>
+            <span class="<%= status_badge_classes(active: today_checkin.trained?) %>">Treino</span>
+            <span class="<%= status_badge_classes(active: today_checkin.cardio?) %>">Cardio</span>
+            <span class="<%= status_badge_classes(active: today_checkin.anxiolytic_used?, tone: :warning) %>">Ansiolítico</span>
+          </div>
+        </div>
+
+        <%= link_to "Editar",
+            edit_daily_checkin_path(today_checkin),
+            class: button_classes(variant: :secondary),
+            data: { turbo_frame: "today_checkin" } %>
+      </div>
+    <% end %>
+  <% else %>
+    <%= render "shared/card", class: "border-emerald-200 bg-emerald-50/60 dark:border-emerald-900 dark:bg-emerald-950/20" do %>
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p class="text-sm font-medium text-emerald-700 dark:text-emerald-400">Hoje ainda está em aberto</p>
+          <h2 class="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100">Registrar check-in de hoje</h2>
+          <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Preencha peso, treino, cardio, uso de ansiolítico, fome, energia e humor/stress em um único fluxo rápido.</p>
+        </div>
+
+        <%= link_to "Registrar agora",
+            new_daily_checkin_path(date: Date.current),
+            class: button_classes(variant: :primary, size: :lg),
+            data: { turbo_frame: "today_checkin" } %>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>

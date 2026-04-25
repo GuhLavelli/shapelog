@@ -1,0 +1,113 @@
+<%= form_with model: checkin, class: "space-y-6", data: { turbo_frame: "_top" } do |form| %>
+  <%= render "shared/form_errors", record: checkin %>
+
+  <% if local_assigns[:existing_checkin].present? && checkin.errors.of_kind?(:date, :taken) %>
+    <div class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 shadow-xs dark:border-amber-900 dark:bg-amber-950/20 dark:text-amber-300">
+      Você já tem um check-in neste dia.
+      <%= link_to "Abrir para editar",
+          edit_daily_checkin_path(existing_checkin),
+          class: "font-medium underline underline-offset-2" %>
+    </div>
+  <% end %>
+
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <%= render "shared/field", object: checkin, attr: :date, field_id: form.field_id(:date), label_text: "Data", required: true, hint: "Use o calendário ou digite no formato dd/mm/aaaa." do %>
+      <%= form.text_field :date,
+          id: form.field_id(:date),
+          value: checkin.date.present? ? l(checkin.date, format: "%d/%m/%Y") : nil,
+          placeholder: "dd/mm/aaaa",
+          inputmode: "numeric",
+          autocomplete: "off",
+          datepicker: true,
+          "datepicker-format": "dd/mm/yyyy",
+          "datepicker-autohide": true,
+          "datepicker-buttons": true,
+          class: text_input_classes %>
+    <% end %>
+
+    <%= render "shared/field", object: checkin, attr: :weight, field_id: form.field_id(:weight), label_text: "Peso", required: true do %>
+      <div class="relative">
+        <%= form.text_field :weight,
+            id: form.field_id(:weight),
+            value: checkin.weight.present? ? number_with_precision(checkin.weight, precision: 1, strip_insignificant_zeros: true, separator: ",") : nil,
+            placeholder: "Ex: 89,7",
+            inputmode: "decimal",
+            autocomplete: "off",
+            pattern: "[0-9]+([,\\.][0-9]+)?",
+            data: { controller: "decimal-input", action: "input->decimal-input#sanitize blur->decimal-input#sanitize" },
+            class: text_input_classes(extra: "pr-14") %>
+        <span class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm text-slate-500 dark:text-slate-400">kg</span>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+    <% [
+      [:trained, "Treino"],
+      [:cardio, "Cardio"],
+      [:anxiolytic_used, "Uso de ansiolítico"]
+    ].each do |attribute, label| %>
+      <div>
+        <% field_id = form.field_id(attribute) %>
+        <label for="<%= field_id %>" class="flex cursor-pointer items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 transition-colors hover:border-emerald-200 hover:bg-white dark:border-slate-800 dark:bg-slate-950 dark:hover:border-emerald-900 dark:hover:bg-slate-900">
+          <span class="text-sm font-medium text-slate-900 dark:text-slate-100"><%= label %></span>
+          <span class="relative inline-flex items-center">
+            <%= form.check_box attribute, { class: "peer sr-only", id: field_id }, "1", "0" %>
+            <span class="relative block h-7 w-12 rounded-full bg-rose-400 transition-colors duration-200 ease-out after:absolute after:left-1 after:top-1 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow-sm after:transition-transform after:duration-200 after:ease-out peer-checked:bg-emerald-500 peer-checked:after:translate-x-5 dark:bg-rose-700 dark:peer-checked:bg-emerald-600"></span>
+          </span>
+        </label>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+    <% [
+      [:hunger_level, "Fome", "1 = controlada, 10 = muito alta"],
+      [:energy_level, "Energia", "1 = baixa, 10 = muito alta"],
+      [:mood_stress_level, "Humor / Stress", "1 = calmo, 10 = muito pressionado"]
+    ].each do |attribute, label, hint| %>
+      <%= render "shared/field", object: checkin, attr: attribute, field_id: form.field_id(attribute), label_text: label, hint: hint do %>
+        <div data-controller="range-value" class="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/60">
+          <div class="mb-3 flex items-center justify-between">
+            <span class="text-sm font-medium text-slate-600 dark:text-slate-300">Valor</span>
+            <span data-range-value-target="output" class="inline-flex min-w-10 justify-center rounded-full bg-white px-3 py-1 text-sm font-semibold text-slate-900 shadow-sm dark:bg-slate-900 dark:text-slate-100">
+              <%= checkin.public_send(attribute).presence || 5 %>
+            </span>
+          </div>
+          <%= form.range_field attribute,
+              id: form.field_id(attribute),
+              min: 1,
+              max: 10,
+              value: checkin.public_send(attribute).presence || 5,
+              class: "block w-full accent-emerald-500",
+              data: { action: "input->range-value#sync", range_value_target: "input" } %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+
+  <%= render "shared/field", object: checkin, attr: :notes, field_id: form.field_id(:notes), label_text: "Notas" do %>
+    <%= form.text_area :notes,
+        id: form.field_id(:notes),
+        rows: 5,
+        class: textarea_classes,
+        placeholder: "Sono, percepção corporal, observações do treino, efeitos colaterais..." %>
+  <% end %>
+
+  <div class="sticky bottom-20 z-10 -mx-4 border-t border-slate-200 bg-slate-50/95 px-4 py-4 backdrop-blur md:static md:mx-0 md:border-0 md:bg-transparent md:px-0 md:py-0 dark:border-slate-800 dark:bg-slate-950/95 md:dark:bg-transparent">
+    <div class="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+      <%= form.submit checkin.persisted? ? "Salvar alterações" : "Salvar check-in",
+          class: button_classes(variant: :primary, size: :lg, extra: "flex-1 md:flex-none") %>
+      <%= link_to "Cancelar",
+          daily_checkins_path,
+          class: button_classes(variant: :secondary, size: :lg),
+          data: { turbo_frame: "_top" } %>
+      <% if checkin.persisted? %>
+        <%= link_to "Excluir",
+            daily_checkin_path(checkin),
+            class: button_classes(variant: :danger, size: :lg),
+            data: { turbo_method: :delete, turbo_confirm: "Remover este check-in?", turbo_frame: "_top" } %>
+      <% end %>
+    </div>
+  </div>
+<% end %>
