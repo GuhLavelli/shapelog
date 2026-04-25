@@ -1,0 +1,60 @@
+<%= render "shared/page_header",
+    title: "Medicamentos",
+    subtitle: "Registre horário, dosagem e observações sem perder consistência nos nomes.",
+    action: link_to("Adicionar medicamento", new_medication_path, class: button_classes(variant: :primary)) %>
+
+<% if @medications.any? %>
+  <div class="space-y-4">
+    <% @medications.each do |medication| %>
+      <%= render "shared/card" do %>
+        <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-emerald-700 dark:text-emerald-400"><%= medication.name %></p>
+            <h2 class="mt-2 text-lg font-semibold text-slate-900 dark:text-slate-100"><%= l(medication.taken_at, format: :long) %></h2>
+            <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
+              Registrado <%= time_ago_in_words(medication.taken_at) %> atrás
+            </p>
+
+            <div class="mt-4 flex flex-wrap gap-2 text-sm text-slate-600 dark:text-slate-300">
+              <span class="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 font-medium text-emerald-700 dark:border-emerald-900/70 dark:bg-emerald-950/40 dark:text-emerald-300">
+                Dosagem: <%= medication.formatted_dosage %>
+              </span>
+
+              <% if medication.administration_site.present? %>
+                <span class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-950/60 dark:text-slate-300">
+                  Local: <%= medication.administration_site %>
+                </span>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="w-full max-w-sm space-y-4">
+            <% if medication.side_effects.present? || medication.notes.present? %>
+              <div class="space-y-2 text-sm text-slate-500 dark:text-slate-400">
+                <% if medication.side_effects.present? %>
+                  <p><span class="font-medium text-slate-700 dark:text-slate-300">Efeitos:</span> <%= truncate(medication.side_effects, length: 120) %></p>
+                <% end %>
+
+                <% if medication.notes.present? %>
+                  <p><span class="font-medium text-slate-700 dark:text-slate-300">Notas:</span> <%= truncate(medication.notes, length: 120) %></p>
+                <% end %>
+              </div>
+            <% end %>
+
+            <div class="flex flex-col gap-2 sm:flex-row sm:justify-end">
+              <%= link_to "Ver", medication_path(medication), class: button_classes(variant: :secondary, size: :sm) %>
+              <%= link_to "Editar", edit_medication_path(medication), class: button_classes(variant: :primary, size: :sm) %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+<% else %>
+  <%= render "shared/empty_state",
+      icon: "💊",
+      title: "Nenhum medicamento registrado",
+      description: "Seu primeiro registro já libera o histórico e as sugestões canônicas para os próximos check-ins.",
+      cta_label: "Adicionar medicamento",
+      cta_path: new_medication_path %>
+<% end %>

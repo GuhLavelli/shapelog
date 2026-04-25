@@ -1,0 +1,166 @@
+<%= form_with model: alert, class: "space-y-8", data: { controller: "channel-selector" } do |form| %>
+  <%= render "shared/form_errors", record: alert %>
+
+  <%# ── Canal (somente na criação) ── %>
+  <% if alert.new_record? %>
+    <%= render "shared/field", label_text: "Canal", required: true do %>
+      <div class="flex gap-3">
+        <% [["email", "📧 E-mail"], ["whatsapp", "📱 WhatsApp"]].each do |value, label| %>
+          <label class="flex-1 cursor-pointer">
+            <input type="radio" name="alert[channel]" value="<%= value %>"
+                   <%= "checked" if alert.channel == value %>
+                   class="peer sr-only"
+                   data-channel-selector-target="channelInput"
+                   data-action="change->channel-selector#toggle">
+            <div class="flex items-center justify-center rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700 transition-all peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300 dark:peer-checked:border-emerald-500 dark:peer-checked:bg-emerald-950/30 dark:peer-checked:text-emerald-300">
+              <%= label %>
+            </div>
+          </label>
+        <% end %>
+      </div>
+    <% end %>
+  <% else %>
+    <%= form.hidden_field :channel %>
+    <%# Input oculto para o Stimulus encontrar o target %>
+    <input type="hidden" value="<%= alert.channel %>" data-channel-selector-target="channelInput">
+  <% end %>
+
+  <%# ── Campos comuns ── %>
+  <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+    <%= render "shared/field",
+        object: alert,
+        attr: :periodicity,
+        label_text: "Periodicidade",
+        field_id: form.field_id(:periodicity),
+        required: true do %>
+      <%= form.select :periodicity,
+          Alert::PERIODICITY_LABELS.map { |k, v| [v, k] },
+          { include_blank: "Selecione..." },
+          id: form.field_id(:periodicity),
+          class: text_input_classes %>
+    <% end %>
+
+    <%= render "shared/field",
+        object: alert,
+        attr: :dispatch_time,
+        label_text: "Horário do disparo",
+        field_id: form.field_id(:dispatch_time),
+        required: true,
+        hint: "Horário em que o alerta será enviado" do %>
+      <%= form.time_field :dispatch_time,
+          id: form.field_id(:dispatch_time),
+          value: alert.dispatch_time_formatted,
+          class: text_input_classes %>
+    <% end %>
+  </div>
+
+  <%# ── Campos E-mail ── %>
+  <div data-channel-selector-target="emailFields" class="<%= 'hidden' unless alert.email? %>">
+    <div class="space-y-5">
+      <%= render "shared/field",
+          object: alert,
+          attr: :recipients,
+          label_text: "Destinatários",
+          required: true,
+          hint: "Até 3 endereços de e-mail" do %>
+        <div data-controller="email-recipients" data-email-recipients-max-value="3">
+          <div class="space-y-3" data-email-recipients-target="container">
+            <% recipients = alert.recipients.presence || [Current.user&.email_address].compact %>
+            <% recipients.each_with_index do |email, idx| %>
+              <div class="flex items-center gap-2" data-email-recipients-target="entry">
+                <input type="email" name="alert[recipients][]"
+                       value="<%= email %>"
+                       placeholder="<%= idx == 0 ? 'Seu e-mail' : 'outro@email.com' %>"
+                       class="<%= text_input_classes %>"
+                       inputmode="email" autocomplete="off"
+                       <%= "readonly" if idx == 0 %>>
+                <% if idx > 0 %>
+                  <button type="button" data-action="click->email-recipients#remove"
+                          class="shrink-0 rounded-lg p-2 text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/30 dark:hover:text-rose-400"
+                          title="Remover e-mail">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                <% else %>
+                  <div class="w-9 shrink-0"></div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+
+          <button type="button"
+                  data-action="click->email-recipients#add"
+                  data-email-recipients-target="addButton"
+                  class="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600 transition-colors hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 <%= 'hidden' if recipients.size >= 3 %>">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Adicionar e-mail
+          </button>
+        </div>
+      <% end %>
+
+      <%= render "shared/field",
+          object: alert,
+          attr: :report_type,
+          label_text: "Tipo de relatório",
+          field_id: form.field_id(:report_type),
+          required: true do %>
+        <%= form.select :report_type,
+            Alert::EMAIL_REPORT_TYPES.map { |k| [Alert::REPORT_TYPE_LABELS[k], k] },
+            { include_blank: "Selecione..." },
+            id: form.field_id(:report_type),
+            class: text_input_classes %>
+      <% end %>
+
+      <%= render "shared/field",
+          object: alert,
+          attr: :dispatch_weekday,
+          label_text: "Dia da semana do disparo",
+          field_id: form.field_id(:dispatch_weekday),
+          hint: "Obrigatório para alertas semanais e quinzenais por e-mail." do %>
+        <%= form.select :dispatch_weekday,
+            Alert::WEEKDAY_LABELS.map { |key, label| [label, key] },
+            { include_blank: "Selecione..." },
+            id: form.field_id(:dispatch_weekday),
+            class: text_input_classes %>
+      <% end %>
+    </div>
+  </div>
+
+  <%# ── Campos WhatsApp ── %>
+  <div data-channel-selector-target="whatsappFields" class="<%= 'hidden' unless alert.whatsapp? %>">
+    <div class="space-y-5">
+      <%= render "shared/field",
+          object: alert,
+          attr: :phone_number,
+          label_text: "Número de WhatsApp",
+          field_id: form.field_id(:phone_number),
+          required: true,
+          hint: "Número brasileiro com DDD" do %>
+        <%= form.text_field :phone_number,
+            id: form.field_id(:phone_number),
+            inputmode: "tel",
+            autocomplete: "tel",
+            placeholder: "(11) 99999-9999",
+            data: { controller: "phone-mask", action: "input->phone-mask#format" },
+            class: text_input_classes %>
+      <% end %>
+
+      <%= render "shared/field",
+          label_text: "Tipo",
+          hint: "Alertas via WhatsApp são sempre enviados como lembrete" do %>
+        <input type="hidden" name="alert[report_type]" value="reminder">
+        <input type="text" value="Lembrete" readonly
+               class="<%= text_input_classes %> cursor-not-allowed opacity-60">
+      <% end %>
+    </div>
+  </div>
+
+  <%# ── Ações ── %>
+  <div class="flex flex-col gap-3 border-t border-slate-200 pt-2 sm:flex-row dark:border-slate-800">
+    <%= form.submit (alert.persisted? ? "Salvar alerta" : "Criar alerta"), class: button_classes(variant: :primary) %>
+    <%= link_to "Cancelar", alerts_path, class: button_classes(variant: :secondary) %>
+  </div>
+<% end %>

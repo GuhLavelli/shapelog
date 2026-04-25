@@ -6,10 +6,11 @@ Rails.application.routes.draw do
   get "dashboard", to: "dashboard#index"
 
   resources :daily_checkins
-  resources :mounjaro_applications
-  resources :body_measurements
+  resources :medication_options, only: :index
+  resources :medications
   resources :weights, only: :index
   resource  :goal, only: [:show, :edit, :update]
+  resources :alerts, except: :show
 
   get "up" => "rails/health#show", as: :rails_health_check
 end

@@ -1,0 +1,19 @@
+email_alert:
+  user: one
+  channel: 0
+  periodicity: 1
+  dispatch_time: "08:00:00"
+  dispatch_weekday: 1
+  report_type: 0
+  active: true
+  recipients:
+    - "one@example.com"
+
+whatsapp_alert:
+  user: one
+  channel: 1
+  periodicity: 1
+  dispatch_time: "09:00:00"
+  report_type: 3
+  active: true
+  phone_number: "(11) 99999-9999"

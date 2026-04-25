@@ -1,0 +1,13 @@
+creatina:
+  user: one
+  name: Creatina
+  normalized_name: creatina
+  usage_count: 1
+  last_used_at: 2026-04-15 08:30:00
+
+vitamina_d:
+  user: two
+  name: Vitamina D
+  normalized_name: vitamina d
+  usage_count: 1
+  last_used_at: 2026-04-12 07:45:00

@@ -55,4 +55,15 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  test "destroy removes medications before medication options" do
+    user = User.create!(email_address: "with-meds@example.com", password: "password", password_confirmation: "password")
+    option = user.medication_options.create!(name: "Dipirona")
+    user.medications.create!(medication_option: option, taken_at: Time.zone.local(2026, 4, 18, 8, 30), dosage: 500, dosage_unit: "mg")
+
+    assert_difference("Medication.count", -1) do
+      assert_difference("MedicationOption.count", -1) do
+        user.destroy
+      end
+    end
+  end
 end

@@ -1,7 +1,13 @@
 # Usuário único do app
-user = User.find_or_create_by!(email_address: "guhlavelli@gmail.com") do |u|
-  u.password = ENV.fetch("SEED_PASSWORD", "changeme123")
+seed_password = ENV.fetch("SEED_PASSWORD", "changeme123")
+
+user = User.find_or_initialize_by(email_address: "guhlavelli@gmail.com")
+
+if user.new_record? || !user.authenticate(seed_password)
+  user.password = seed_password
 end
+
+user.save!
 
 puts "Usuário: #{user.email_address}"
 
@@ -30,30 +36,35 @@ if ENV["SEED_DEMO_DATA"]
       weight:           weight,
       trained:          [true, true, false].sample,
       cardio:           [true, false].sample,
-      steps:            rand(4000..12000),
+      anxiolytic_used:  [true, false, false].sample,
       hunger_level:     rand(3..8),
       energy_level:     rand(4..9),
-      calories_estimate: rand(1400..2200),
-      waist:            (94.0 - (30 - days_ago) * 0.1 + rand(-0.3..0.3)).round(1),
+      mood_stress_level: rand(3..8),
       notes:            nil
     )
   end
 
   puts "#{user.daily_checkins.count} check-ins criados."
 
-  # Aplicações Mounjaro (semanais)
+  # Medicamentos de exemplo (semanais)
   [28, 21, 14, 7].each do |days_ago|
-    date = days_ago.days.ago.to_date
-    next if user.mounjaro_applications.exists?(application_date: date)
+    taken_at = days_ago.days.ago.change(hour: 9, min: 0)
+    option = user.medication_options.find_or_create_by!(normalized_name: MedicationOption.normalize_name("Medicamento semanal")) do |record|
+      record.name = "Medicamento semanal"
+    end
 
-    user.mounjaro_applications.create!(
-      application_date: date,
-      dose:             2.5,
-      application_site: ["abdômen", "coxa"].sample,
-      side_effects:     nil,
-      notes:            nil
+    next if user.medications.exists?(taken_at:, medication_option: option)
+
+    user.medications.create!(
+      medication_option:   option,
+      taken_at:            taken_at,
+      dosage:              2.5,
+      dosage_unit:         "mg",
+      administration_site: ["abdômen", "coxa"].sample,
+      side_effects:        nil,
+      notes:               nil
     )
   end
 
-  puts "#{user.mounjaro_applications.count} aplicações criadas."
+  puts "#{user.medications.count} medicamentos criados."
 end

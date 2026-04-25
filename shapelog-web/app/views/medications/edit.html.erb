@@ -1,0 +1,7 @@
+<%= render "shared/page_header",
+    title: "Editar medicamento",
+    subtitle: "Ajuste horário, nome ou dosagem sem perder o histórico." %>
+
+<%= render "shared/card" do %>
+  <%= render "form", medication: @medication %>
+<% end %>

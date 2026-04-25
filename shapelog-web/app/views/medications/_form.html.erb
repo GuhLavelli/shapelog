@@ -1,0 +1,126 @@
+<%= form_with model: medication, class: "space-y-6", data: { turbo_frame: "_top" } do |form| %>
+  <%= render "shared/form_errors", record: medication %>
+
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <%= render "shared/field", object: medication, attr: :taken_at, field_id: form.field_id(:taken_at_date), label_text: "Dia e horário", required: true, hint: "Use o calendário e ajuste o horário do registro." do %>
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <%= form.text_field :taken_at_date,
+            id: form.field_id(:taken_at_date),
+            value: medication.taken_at_date,
+            placeholder: "dd/mm/aaaa",
+            inputmode: "numeric",
+            autocomplete: "off",
+            datepicker: true,
+            "datepicker-format": "dd/mm/yyyy",
+            "datepicker-autohide": true,
+            "datepicker-buttons": true,
+            class: text_input_classes %>
+
+        <%= form.time_field :taken_at_time,
+            id: form.field_id(:taken_at_time),
+            value: medication.taken_at_time,
+            class: text_input_classes %>
+      </div>
+    <% end %>
+
+    <div data-controller="medication-form"
+         data-medication-form-url-value="<%= medication_options_path %>"
+         data-medication-form-server-suggestion-value="<%= medication.canonical_name_suggestion %>">
+      <%= render "shared/field", object: medication, attr: :medication_name, field_id: form.field_id(:medication_name), label_text: "Medicamento", required: true, hint: "Ao digitar, o sistema sugere nomes já normalizados para evitar duplicidade." do %>
+        <div class="relative">
+          <%= form.text_field :medication_name,
+              id: form.field_id(:medication_name),
+              value: medication.medication_name,
+              autocomplete: "off",
+              placeholder: "Ex: Dipirona",
+              class: text_input_classes,
+              data: {
+                medication_form_target: "nameInput",
+                action: "focus->medication-form#search input->medication-form#search blur->medication-form#queueHide"
+              } %>
+
+          <div data-medication-form-target="results"
+               class="absolute left-0 right-0 top-full z-20 mt-2 hidden overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg shadow-slate-950/10 dark:border-slate-700 dark:bg-slate-900"></div>
+        </div>
+
+        <div data-medication-form-target="canonicalSuggestion"
+             class="mt-3 <%= medication.canonical_name_suggestion.present? ? "" : "hidden" %> rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/20 dark:text-amber-300">
+          <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <p>
+              Já existe como
+              <span data-medication-form-target="canonicalSuggestionLabel" class="font-semibold"><%= medication.canonical_name_suggestion %></span>.
+            </p>
+            <button type="button"
+                    class="text-left font-medium underline underline-offset-2 sm:text-right"
+                    data-medication-form-target="canonicalSuggestionButton"
+                    data-name="<%= medication.canonical_name_suggestion %>"
+                    data-action="medication-form#applySuggestion">
+              Usar nome salvo
+            </button>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <%= render "shared/field", object: medication, attr: :dosage, field_id: form.field_id(:dosage), label_text: "Dosagem", required: true do %>
+      <div class="grid grid-cols-[minmax(0,1fr)_8.5rem] gap-3">
+        <%= form.text_field :dosage,
+            id: form.field_id(:dosage),
+            value: medication.dosage.present? ? number_with_precision(medication.dosage, precision: 2, strip_insignificant_zeros: true, separator: ",") : nil,
+            placeholder: "Ex: 500",
+            inputmode: "decimal",
+            autocomplete: "off",
+            pattern: "[0-9]+([,\\.][0-9]+)?",
+            data: { controller: "decimal-input", action: "input->decimal-input#sanitize blur->decimal-input#sanitize" },
+            class: text_input_classes %>
+
+        <%= form.select :dosage_unit,
+            options_for_select(Medication::DOSAGE_UNITS.map { |unit| [unit == "ui" ? "UI" : unit, unit] }, medication.dosage_unit),
+            {},
+            class: text_input_classes %>
+      </div>
+    <% end %>
+
+    <%= render "shared/field", object: medication, attr: :administration_site, field_id: form.field_id(:administration_site), label_text: "Local de administração", hint: "Opcional. Use quando fizer sentido para aplicação ou injeção." do %>
+      <%= form.text_field :administration_site,
+          id: form.field_id(:administration_site),
+          placeholder: "Ex: Abdômen",
+          class: text_input_classes %>
+    <% end %>
+  </div>
+
+  <%= render "shared/field", object: medication, attr: :side_effects, field_id: form.field_id(:side_effects), label_text: "Efeitos colaterais", hint: "Opcional. Registre sintomas ou reações percebidas." do %>
+    <%= form.text_area :side_effects,
+        id: form.field_id(:side_effects),
+        rows: 4,
+        class: textarea_classes,
+        placeholder: "Ex: náusea leve, dor de cabeça, desconforto gastrointestinal..." %>
+  <% end %>
+
+  <%= render "shared/field", object: medication, attr: :notes, field_id: form.field_id(:notes), label_text: "Notas", hint: "Opcional. Contexto adicional do check-in do medicamento." do %>
+    <%= form.text_area :notes,
+        id: form.field_id(:notes),
+        rows: 5,
+        class: textarea_classes,
+        placeholder: "Ex: após o almoço, antes do treino, percepção de apetite ou energia..." %>
+  <% end %>
+
+  <div class="sticky bottom-20 z-10 -mx-4 border-t border-slate-200 bg-slate-50/95 px-4 py-4 backdrop-blur md:static md:mx-0 md:border-0 md:bg-transparent md:px-0 md:py-0 dark:border-slate-800 dark:bg-slate-950/95 md:dark:bg-transparent">
+    <div class="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+      <%= form.submit medication.persisted? ? "Salvar alterações" : "Salvar medicamento",
+          class: button_classes(variant: :primary, size: :lg, extra: "flex-1 md:flex-none") %>
+      <%= link_to "Cancelar",
+          medication.persisted? ? medication_path(medication) : medications_path,
+          class: button_classes(variant: :secondary, size: :lg),
+          data: { turbo_frame: "_top" } %>
+      <% if medication.persisted? %>
+        <%= link_to "Excluir",
+            medication_path(medication),
+            class: button_classes(variant: :danger, size: :lg),
+            data: { turbo_method: :delete, turbo_confirm: "Remover este registro de medicamento?", turbo_frame: "_top" } %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

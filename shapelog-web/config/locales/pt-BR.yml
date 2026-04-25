@@ -106,6 +106,17 @@ pt-BR:
       second: Segundo
       year: Ano
   activerecord:
+    attributes:
+      alert:
+        dispatch_weekday: Dia da semana do disparo
+      medication:
+        medication_name: Medicamento
+        taken_at: Dia e horário
+        dosage: Dosagem
+        dosage_unit: Unidade
+      medication_option:
+        name: Medicamento
+        normalized_name: Nome normalizado
     errors:
       messages:
         record_invalid: "A validação falhou: %{errors}"

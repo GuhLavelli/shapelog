@@ -1,0 +1,7 @@
+<%= render "shared/page_header",
+    title: "Novo alerta",
+    subtitle: "Configure um novo alerta de #{@alert.email? ? 'e-mail' : 'WhatsApp'}" %>
+
+<%= render "shared/card" do %>
+  <%= render "alerts/form", alert: @alert %>
+<% end %>

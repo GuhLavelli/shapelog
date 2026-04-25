@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  medication_option: creatina
+  taken_at: 2026-04-15 08:30:00
+  dosage: 3.00
+  dosage_unit: g
+  administration_site: ""
+  side_effects: ""
+  notes: Pós-treino
+
+two:
+  user: two
+  medication_option: vitamina_d
+  taken_at: 2026-04-12 07:45:00
+  dosage: 1.00
+  dosage_unit: comprimido
+  administration_site: ""
+  side_effects: ""
+  notes: Uso semanal

@@ -1,0 +1,53 @@
+<%= render "shared/card" do %>
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex-1 space-y-2">
+      <div class="flex items-center gap-3">
+        <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100">
+          <%= alert.report_type_label %>
+        </h3>
+        <span class="<%= status_badge_classes(active: alert.active) %>">
+          <%= alert.active? ? "Ativo" : "Pausado" %>
+        </span>
+      </div>
+
+      <div class="flex flex-wrap gap-x-5 gap-y-1 text-sm text-slate-500 dark:text-slate-400">
+        <span>
+          <span class="font-medium text-slate-700 dark:text-slate-300">Periodicidade:</span>
+          <%= alert.periodicity_label %>
+        </span>
+        <span>
+          <span class="font-medium text-slate-700 dark:text-slate-300">Horário:</span>
+          <%= alert.dispatch_time_formatted %>
+        </span>
+        <% if alert.email? && alert.dispatch_weekday.present? %>
+          <span>
+            <span class="font-medium text-slate-700 dark:text-slate-300">Dia:</span>
+            <%= alert.dispatch_weekday_label %>
+          </span>
+        <% end %>
+      </div>
+
+      <% if alert.email? && alert.recipients.present? %>
+        <div class="text-sm text-slate-500 dark:text-slate-400">
+          <span class="font-medium text-slate-700 dark:text-slate-300">Destinatários:</span>
+          <%= alert.recipients.join(", ") %>
+        </div>
+      <% end %>
+
+      <% if alert.whatsapp? && alert.phone_number.present? %>
+        <div class="text-sm text-slate-500 dark:text-slate-400">
+          <span class="font-medium text-slate-700 dark:text-slate-300">Número:</span>
+          <%= alert.phone_number %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="flex shrink-0 items-center gap-2">
+      <%= link_to "Editar", edit_alert_path(alert),
+          class: button_classes(variant: :secondary, size: :sm) %>
+      <%= button_to "Excluir", alert_path(alert), method: :delete,
+          class: button_classes(variant: :danger, size: :sm),
+          data: { turbo_confirm: "Tem certeza que deseja remover este alerta?" } %>
+    </div>
+  </div>
+<% end %>

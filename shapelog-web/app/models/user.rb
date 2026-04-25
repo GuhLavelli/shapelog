@@ -2,11 +2,16 @@ class User < ApplicationRecord
   has_secure_password
   has_many :sessions, dependent: :destroy
   has_many :daily_checkins, dependent: :destroy
-  has_many :mounjaro_applications, dependent: :destroy
-  has_many :body_measurements, dependent: :destroy
+  has_many :medications, dependent: :destroy
+  has_many :medication_options, dependent: :destroy
+  has_many :alerts, dependent: :destroy
   has_one  :goal, dependent: :destroy
- 
+
   normalizes :email_address, with: ->(e) { e.strip.downcase }
+
+  def last_medication
+    medications.recent_first.first
+  end
 
   def current_weight_average(window: 7)
     weights = daily_checkins.recent(window).pluck(:weight)

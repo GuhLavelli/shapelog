@@ -1,0 +1,57 @@
+<%= render "shared/page_header",
+    title: "Alertas",
+    subtitle: "Configure notificações por e-mail e WhatsApp" %>
+
+<div class="space-y-8">
+  <%# ── E-mail ── %>
+  <section>
+    <div class="mb-4 flex items-center justify-between">
+      <h2 class="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+        <span>📧</span> E-mail
+      </h2>
+      <%= link_to "Adicionar", new_alert_path(channel: :email),
+          class: button_classes(variant: :primary, size: :sm) %>
+    </div>
+
+    <% if @email_alerts.any? %>
+      <div class="space-y-4">
+        <% @email_alerts.each do |alert| %>
+          <%= render "alerts/alert_card", alert: alert %>
+        <% end %>
+      </div>
+    <% else %>
+      <%= render "shared/empty_state",
+          title: "Nenhum alerta de e-mail",
+          description: "Configure alertas para receber relatórios e insights por e-mail.",
+          cta_label: "Configurar e-mail",
+          cta_path: new_alert_path(channel: :email),
+          icon: "📧" %>
+    <% end %>
+  </section>
+
+  <%# ── WhatsApp ── %>
+  <section>
+    <div class="mb-4 flex items-center justify-between">
+      <h2 class="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+        <span>📱</span> WhatsApp
+      </h2>
+      <%= link_to "Adicionar", new_alert_path(channel: :whatsapp),
+          class: button_classes(variant: :primary, size: :sm) %>
+    </div>
+
+    <% if @whatsapp_alerts.any? %>
+      <div class="space-y-4">
+        <% @whatsapp_alerts.each do |alert| %>
+          <%= render "alerts/alert_card", alert: alert %>
+        <% end %>
+      </div>
+    <% else %>
+      <%= render "shared/empty_state",
+          title: "Nenhum alerta de WhatsApp",
+          description: "Configure lembretes por WhatsApp para manter sua consistência.",
+          cta_label: "Configurar WhatsApp",
+          cta_path: new_alert_path(channel: :whatsapp),
+          icon: "📱" %>
+    <% end %>
+  </section>
+</div>

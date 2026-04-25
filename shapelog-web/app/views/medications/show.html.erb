@@ -1,0 +1,55 @@
+<%= render "shared/page_header",
+    title: @medication.name,
+    subtitle: "Registro detalhado do uso do medicamento.",
+    action: link_to("Editar", edit_medication_path(@medication), class: button_classes(variant: :primary)) %>
+
+<div class="space-y-6">
+  <%= render "shared/card" do %>
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/60">
+        <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Dia e horário</p>
+        <p class="mt-2 text-lg font-semibold text-slate-900 dark:text-slate-100"><%= l(@medication.taken_at, format: :long) %></p>
+      </div>
+
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/60">
+        <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Dosagem</p>
+        <p class="mt-2 text-lg font-semibold text-slate-900 dark:text-slate-100"><%= @medication.formatted_dosage %></p>
+      </div>
+
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/60">
+        <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Medicamento canônico</p>
+        <p class="mt-2 text-lg font-semibold text-slate-900 dark:text-slate-100"><%= @medication.name %></p>
+      </div>
+
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/60">
+        <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Local de administração</p>
+        <p class="mt-2 text-lg font-semibold text-slate-900 dark:text-slate-100"><%= @medication.administration_site.presence || "Não informado" %></p>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @medication.side_effects.present? || @medication.notes.present? %>
+    <%= render "shared/card" do %>
+      <div class="space-y-5">
+        <% if @medication.side_effects.present? %>
+          <div>
+            <h2 class="text-sm font-medium text-slate-500 dark:text-slate-400">Efeitos colaterais</h2>
+            <div class="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300"><%= simple_format(@medication.side_effects, class: "m-0") %></div>
+          </div>
+        <% end %>
+
+        <% if @medication.notes.present? %>
+          <div>
+            <h2 class="text-sm font-medium text-slate-500 dark:text-slate-400">Notas</h2>
+            <div class="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300"><%= simple_format(@medication.notes, class: "m-0") %></div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <div class="flex flex-col gap-3 sm:flex-row">
+    <%= link_to "Voltar para a lista", medications_path, class: button_classes(variant: :secondary) %>
+    <%= link_to "Editar registro", edit_medication_path(@medication), class: button_classes(variant: :primary) %>
+  </div>
+</div>

@@ -1,0 +1,7 @@
+<%= render "shared/page_header",
+    title: "Adicionar medicamento",
+    subtitle: "Registre dia, horário, nome canônico e dosagem do uso." %>
+
+<%= render "shared/card" do %>
+  <%= render "form", medication: @medication %>
+<% end %>
