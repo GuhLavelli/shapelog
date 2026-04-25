@@ -3,10 +3,12 @@ name: shapelog
 services:
   db:
     image: postgres:16-alpine
+    env_file:
+      - ../.env
     environment:
-      POSTGRES_USER: shapelog
-      POSTGRES_PASSWORD: shapelog_dev
-      POSTGRES_DB: shapelog_development
+      POSTGRES_USER: ${POSTGRES_USER:-shapelog}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-shapelog_dev}
+      POSTGRES_DB: ${POSTGRES_DB:-shapelog_development}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -21,10 +23,12 @@ services:
 
   web:
     build:
-      context: .
+      context: ../apps/web
       dockerfile: Dockerfile
+    env_file:
+      - ../.env
     volumes:
-      - .:/app
+      - ../apps/web:/app
       - bundle_cache:/usr/local/bundle
     ports:
       - "3000:3000"
@@ -33,16 +37,15 @@ services:
         condition: service_healthy
     environment:
       POSTGRES_HOST: db
-      POSTGRES_USER: shapelog
-      POSTGRES_PASSWORD: shapelog_dev
-      POSTGRES_DB: shapelog_development
-      POSTGRES_TEST_DB: shapelog_test
+      POSTGRES_USER: ${POSTGRES_USER:-shapelog}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-shapelog_dev}
+      POSTGRES_DB: ${POSTGRES_DB:-shapelog_development}
+      POSTGRES_TEST_DB: ${POSTGRES_TEST_DB:-shapelog_test}
       RAILS_ENV: development
       RAILS_LOG_TO_STDOUT: "true"
-      SEED_PASSWORD: changeme123
+      SEED_PASSWORD: ${SEED_PASSWORD:-changeme123}
     networks:
       - app_network
-    # bin/dev roda rails server + tailwind watch via foreman (Procfile.dev)
     command: bin/dev
     stdin_open: true
     tty: true
