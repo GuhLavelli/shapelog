@@ -12,16 +12,16 @@ Este arquivo define regras visuais e de interação para componentes da interfac
 
 ## Base visual obrigatória
 
-- a interface web do ShapeLog deve ser `Flowbite-first`
-- sempre preferir componentes e anatomias compatíveis com Flowbite para:
+- a interface web do ShapeLog deve seguir o sistema visual próprio já consolidado no projeto
+- sempre preferir os partials e helpers compartilhados para:
   - cards
   - botões
   - alerts
   - navegação
   - inputs
   - estados vazios
-- partials Rails compartilhados são permitidos e desejáveis, desde que funcionem como wrappers finos sobre o padrão visual do Flowbite
-- `Stimulus` pode continuar sendo usado para comportamentos específicos do produto quando o Flowbite não cobre a interação sozinho
+- partials Rails compartilhados são a base para manter consistência visual sem depender de bibliotecas de componentes externas
+- `Stimulus` pode continuar sendo usado para comportamentos específicos do produto
 - evitar criar uma segunda linguagem visual paralela com componentes ad hoc por tela
 
 ## Inputs de data

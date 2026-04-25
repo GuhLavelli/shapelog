@@ -169,8 +169,8 @@ As telas web do ShapeLog devem seguir o layout e o vocabulário visual já conso
 
 ### Diretriz principal
 
-- a interface deve ser **Flowbite-first**
-- partials compartilhados em Rails são permitidos e desejáveis, desde que funcionem como wrappers finos sobre o padrão visual do Flowbite
+- a interface deve seguir o sistema visual próprio já consolidado no projeto
+- partials compartilhados em Rails são a base para manter consistência visual sem depender de bibliotecas de componentes externas
 - evitar criar uma segunda linguagem visual paralela com markup ad hoc por tela
 
 ### Shell autenticado
@@ -229,7 +229,7 @@ Priorizar especialmente:
 
 - evitar hex colors hardcoded em views quando já existir variante compartilhada
 - manter estados de foco, hover, borda e raio consistentes com o layout atual
-- inputs de data devem seguir o padrão textual `dd/mm/aaaa` com datepicker compatível com Flowbite
+- inputs de data devem seguir o padrão textual `dd/mm/aaaa`
 - inputs numéricos principais devem continuar aceitando vírgula como separador decimal
 - manter `Turbo` e `Stimulus` para comportamento, sem substituir interações simples por soluções mais pesadas
 
