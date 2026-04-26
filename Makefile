@@ -1,6 +1,7 @@
 COMPOSE := docker compose -f infra/docker-compose.yml
+COMPOSE_PROD := docker compose --env-file infra/production.env -f infra/docker-compose.prod.yml
 
-.PHONY: help build setup up down restart shell console logs db-migrate db-seed db-reset test
+.PHONY: help build setup up down restart shell console logs db-migrate db-seed db-reset test prod-config prod-build prod-up prod-down prod-restart prod-logs prod-migrate prod-console prod-backup
 
 help: ## Exibe esta ajuda
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -50,3 +51,32 @@ db-reset: ## Dropa, recria e popula o banco
 
 test: ## Roda a suite de testes
 	$(COMPOSE) run --rm -e RAILS_ENV=test web rails test
+
+# ── Produção ────────────────────────────────────────────────────────────────
+
+prod-config: ## Valida a configuração Docker Compose de produção
+	$(COMPOSE_PROD) config
+
+prod-build: ## Constrói a imagem de produção
+	$(COMPOSE_PROD) build
+
+prod-up: ## Sobe os serviços de produção em background
+	$(COMPOSE_PROD) up -d
+
+prod-down: ## Para e remove os containers de produção
+	$(COMPOSE_PROD) down
+
+prod-restart: ## Reinicia o serviço web de produção
+	$(COMPOSE_PROD) restart web
+
+prod-logs: ## Acompanha logs da aplicação em produção
+	$(COMPOSE_PROD) logs -f web
+
+prod-migrate: ## Executa migrations em produção
+	$(COMPOSE_PROD) run --rm web bin/rails db:migrate
+
+prod-console: ## Abre o Rails console em produção
+	$(COMPOSE_PROD) run --rm web bin/rails console
+
+prod-backup: ## Cria backup gzip do PostgreSQL de produção
+	infra/scripts/backup-postgres.sh

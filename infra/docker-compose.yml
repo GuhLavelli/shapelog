@@ -25,6 +25,7 @@ services:
     build:
       context: ../apps/web
       dockerfile: Dockerfile
+      target: development
     env_file:
       - ../.env
     volumes:

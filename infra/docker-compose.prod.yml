@@ -1,0 +1,85 @@
+name: shapelog-prod
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    networks:
+      - private
+
+  web:
+    build:
+      context: ../apps/web
+      dockerfile: Dockerfile
+      target: production
+    image: shapelog-web:production
+    restart: unless-stopped
+    init: true
+    environment:
+      RAILS_ENV: ${RAILS_ENV:-production}
+      RACK_ENV: ${RACK_ENV:-production}
+      RAILS_LOG_TO_STDOUT: "true"
+      RAILS_LOG_LEVEL: ${RAILS_LOG_LEVEL:-info}
+      RAILS_MAX_THREADS: ${RAILS_MAX_THREADS:-3}
+      APP_HOST: ${APP_HOST:?APP_HOST is required}
+      APP_HOSTS: ${APP_HOSTS:?APP_HOSTS is required}
+      RAILS_ASSUME_SSL: ${RAILS_ASSUME_SSL:-true}
+      RAILS_FORCE_SSL: ${RAILS_FORCE_SSL:-true}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:?SECRET_KEY_BASE is required}
+      POSTGRES_HOST: db
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+    ports:
+      - "127.0.0.1:${SHAPELOG_HTTP_PORT:-3000}:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - rails_storage:/app/storage
+      - rails_tmp:/app/tmp
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1/up >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    networks:
+      - private
+
+volumes:
+  postgres_data:
+  rails_storage:
+  rails_tmp:
+
+networks:
+  private:
+    driver: bridge

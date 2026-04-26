@@ -11,6 +11,8 @@
 .env
 .env.*
 !.env.example
+infra/production.env
+infra/backups/
 
 # Ignore all logfiles and tempfiles.
 /apps/web/log/*
